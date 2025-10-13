@@ -2,8 +2,8 @@
 
 public class IdGenerator
 {
-    public static string GUIDGenerator()
-    {
-        return Guid.NewGuid().ToString();
-    }
+    public static string GUIDGenerator() => Guid.NewGuid().ToString();
+    
+    public static string Product(string prefix = "pr-") => prefix + GUIDGenerator();
+    
 }
