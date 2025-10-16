@@ -10,23 +10,45 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
 {
     private List<Product> _products = [];
     private readonly IJsonFileRepository _jsonFileRepository = jsonFileRepository;
-    private CancellationTokenSource _cts = null!;
+    private CancellationTokenSource? _cts;
     private bool _loaded = false;
 
     public void Cancel()
-    { 
-        _cts.Cancel();
+    {
+        if (_cts == null)
+            return;
+
+        try
+        {
+            if (!_cts.IsCancellationRequested)
+                _cts.Cancel();
+        }
+        catch (ObjectDisposedException)
+        {
+        }
+        finally
+        {
+            try { _cts.Dispose(); } catch { };
+            
+            _cts = null;
+        }
     }
-        
+
+    private void StartNewCancellation()
+    {
+        Cancel();
+        _cts = new CancellationTokenSource();
+    }
+
     public async Task<ResponseResult<IReadOnlyList<Product>>> EnsureLoadedAsync()
     {
         if (_loaded)
             return ResponseResult<IReadOnlyList<Product>>.Ok(_products);
 
+        StartNewCancellation();
+
         try
         {
-            _cts = new CancellationTokenSource();
-
             var result = await _jsonFileRepository.ReadAsync<Product>(_cts.Token);
 
             if (result.Success)
@@ -38,14 +60,13 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
         }
         catch (Exception ex)
         {
-            Cancel();
             return ResponseResult<IReadOnlyList<Product>>.Fail(500, $"Failed to get products: {ex.Message}");
         }
         finally
         {
-            _cts.Dispose();
-            _cts = null!;
+            Cancel();
         }
+      
     }
     public async Task<ResponseResult<IReadOnlyList<Product>>> GetProductsAsync() 
     {
@@ -56,10 +77,10 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
 
     public async Task<ResponseResult> SaveProductAsync(ProductRequest productRequest)
     {
+        StartNewCancellation();
+
         try
         {
-            _cts = new CancellationTokenSource();
-
             int alreadyExists = _products.FindIndex((product) => product.Name.Trim().Equals(productRequest.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
             if (alreadyExists != -1)
@@ -79,21 +100,19 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
         }
         catch (Exception ex)
         {
-            Cancel();
             return ResponseResult.Fail(500, $"Failed to save product: {ex.Message}");
         }
         finally
         {
-            _cts.Dispose();
-            _cts = null!;
+            Cancel();
         }
     }
     public async Task<ResponseResult> UpdateProductAsync(Product updatedProduct)
     {
+        StartNewCancellation();
+
         try
         {
-            _cts = new CancellationTokenSource();
-
             int alreadyExists = _products.FindIndex((product) => product.Name.Trim().Equals(updatedProduct.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
             if (alreadyExists != -1)
@@ -105,37 +124,32 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
         }
         catch (Exception ex)
         {
-            Cancel();
             return ResponseResult.Fail(500, $"Failed to save update product: {ex.Message}");
         }
         finally
         {
-            _cts.Dispose();
-            _cts = null!;
+            Cancel();
         }
     }
 
     public async Task<ResponseResult> DeleteProductAsync(string productId)
     {
+        StartNewCancellation();
+
         try
         {
-            _cts = new CancellationTokenSource();
-
             var response = await _jsonFileRepository.DeleteAsync<Product>((product) => product.Id == productId, _cts.Token);
 
             return response;
         }
         catch (Exception ex)
         {
-            Cancel();
             return ResponseResult.Fail(500, $"Failed to delete product: {ex.Message}");
         }
         finally
         {
-            _cts.Dispose();
-            _cts = null!;
+            Cancel();
         }
-
     }
 }
 
