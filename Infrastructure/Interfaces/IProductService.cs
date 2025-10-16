@@ -4,9 +4,10 @@ namespace Infrastructure.Interfaces;
 
 public interface IProductService
 {
-    Task<ResponseResult> DeleteProductAsync(string productId, CancellationToken cancellationToken);
-    Task<ResponseResult<IReadOnlyList<Product>>> GetProductsAsync(CancellationToken cancellationToken = default);
-    Task<ResponseResult> SaveProductAsync(ProductRequest productRequest, CancellationToken cancellationToken = default);
-    Task<ResponseResult> UpdateProductAsync(ProductRequest productRequest, CancellationToken cancellationToken);
+    void Cancel();
+    Task<ResponseResult> DeleteProductAsync(string productId);
+    Task<ResponseResult<IReadOnlyList<Product>>> GetProductsAsync();
+    Task<ResponseResult> SaveProductAsync(ProductRequest productRequest);
+    Task<ResponseResult> UpdateProductAsync(Product updatedProduct);
 }
 
