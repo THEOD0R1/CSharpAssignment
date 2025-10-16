@@ -10,11 +10,11 @@ public class Validators
 
         return ValidatorResponse<string>.Success(name);
     }
-    public static ValidatorResponse StrToDecimal(string? decimalStr)
+    public static ValidatorResponse<decimal> StrToDecimal(string? decimalStr)
     {
         bool isDecimal = decimal.TryParse(decimalStr, out decimal dec);
 
-        if (!isDecimal) return ValidatorResponse.Failed("Pleas enter a valid number");
+        if (!isDecimal) return ValidatorResponse<decimal>.Failed("Pleas enter a valid number");
 
         return ValidatorResponse<decimal>.Success(dec);
     }
