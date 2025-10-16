@@ -1,6 +1,6 @@
-﻿namespace Infrastructure.Helpers.Generators.Id;
+﻿namespace Infrastructure.Helpers.Generators;
 
-public class IdGenerator
+public class IdGenerators
 {
     public static string GUIDGenerator() => Guid.NewGuid().ToString();
     

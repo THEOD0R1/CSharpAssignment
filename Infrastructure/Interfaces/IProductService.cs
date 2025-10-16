@@ -2,7 +2,7 @@
 
 namespace Infrastructure.Interfaces;
 
-interface IProductService
+public interface IProductService
 {
     Task<ResponseResult> DeleteProductAsync(string productId, CancellationToken cancellationToken);
     Task<ResponseResult<IReadOnlyList<Product>>> GetProductsAsync(CancellationToken cancellationToken = default);

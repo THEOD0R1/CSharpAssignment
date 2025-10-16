@@ -1,4 +1,4 @@
-﻿using Infrastructure.Helpers.Generators.Id;
+﻿using Infrastructure.Helpers.Generators;
 using Infrastructure.Interfaces;
 using Infrastructure.Models;
 using Infrastructure.Repositories;
@@ -42,14 +42,14 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
     {
         try
         {
-            int alreadyExists = _products.FindIndex((product) => product.Name == productRequest.Name);
+            int alreadyExists = _products.FindIndex((product) => product.Name.Trim().Equals(productRequest.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
-            if (alreadyExists == -1)
+            if (alreadyExists != -1)
                 return ResponseResult.Fail(409, "Product name already exists.");
 
             var product = new Product
             {
-                Id = IdGenerator.Product(),
+                Id = IdGenerators.Product(),
                 Name = productRequest.Name,
                 Price = productRequest.Price,
             };

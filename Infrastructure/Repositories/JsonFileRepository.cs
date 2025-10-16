@@ -25,6 +25,8 @@ public class JsonFileRepository : IJsonFileRepository
         string baseDirectory = AppContext.BaseDirectory;
         string dataDirectory = Path.Combine(baseDirectory, fileName);
         _filePath = Path.Combine(dataDirectory, fileName);
+
+        EnsureInitialized(dataDirectory, _filePath);
     }
 
     public static void EnsureInitialized(string dataDirector, string filePath)
@@ -38,7 +40,6 @@ public class JsonFileRepository : IJsonFileRepository
 
     public async ValueTask<ResponseResult<IReadOnlyList<T>>> ReadAsync<T>(CancellationToken cancellationToken = default)
     {
-
         try
         {
             await using FileStream stream = File.OpenRead(_filePath);
@@ -65,7 +66,6 @@ public class JsonFileRepository : IJsonFileRepository
         {
             return ResponseResult.Fail(500, $"Unexpected error: {ex.Message}");
         }
-      
     }
 
     public async Task<ResponseResult> UpdateAsync<T>(Func<T, bool> predicate, T updatedItem, CancellationToken cancellationToken = default)
