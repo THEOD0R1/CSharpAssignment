@@ -14,7 +14,7 @@ public class Validators
     {
         bool isDecimal = decimal.TryParse(decimalStr, out decimal dec);
 
-        if (!isDecimal) return ValidatorResponse<decimal>.Failed("Pleas enter a valid number");
+        if (!isDecimal) return ValidatorResponse<decimal>.Failed("Please enter a valid number");
 
         return ValidatorResponse<decimal>.Success(dec);
     }

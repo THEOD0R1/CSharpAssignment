@@ -1,5 +1,4 @@
 using Infrastructure.Helpers;
-using Xunit;
 
 namespace Infrastructure.Tests.Helpers;
 
@@ -32,7 +31,7 @@ public class Validators_Tests
     {
         var result = Validators.StrToDecimal(input);
         Assert.False(result.IsSuccess);
-        Assert.Equal("Pleas enter a valid number", result.Message);
+        Assert.Equal("Please enter a valid number", result.Message);
     }
 
     [Theory]

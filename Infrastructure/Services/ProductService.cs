@@ -49,7 +49,7 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
 
         try
         {
-            var result = await _jsonFileRepository.ReadAsync<Product>(_cts.Token);
+            var result = await _jsonFileRepository.ReadAsync<Product>(_cts!.Token);
 
             if (result.Success)
                 _loaded = true;
@@ -94,7 +94,7 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
             };
 
             _products.Add(product);
-            await _jsonFileRepository.WriteAsync<Product>(_products, _cts.Token);
+            await _jsonFileRepository.WriteAsync<Product>(_products, _cts!.Token);
 
             return ResponseResult.Ok();
         }
@@ -118,7 +118,7 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
             if (alreadyExists != -1)
                 return ResponseResult.Fail(409, "Product name is already taken.");
 
-            var response = await _jsonFileRepository.UpdateAsync<Product>((product) => product.Id == updatedProduct.Id, updatedProduct, _cts.Token);
+            var response = await _jsonFileRepository.UpdateAsync<Product>((product) => product.Id == updatedProduct.Id, updatedProduct, _cts!.Token);
 
            return response;
         }
@@ -138,7 +138,7 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
 
         try
         {
-            var response = await _jsonFileRepository.DeleteAsync<Product>((product) => product.Id == productId, _cts.Token);
+            var response = await _jsonFileRepository.DeleteAsync<Product>((product) => product.Id == productId, _cts!.Token);
 
             return response;
         }
