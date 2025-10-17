@@ -4,6 +4,7 @@ using Infrastructure.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Presentation.WpfApp.ViewModels;
+using Presentation.WpfApp.Views;
 using System.Windows;
 
 namespace Presentation.WpfApp;
@@ -24,6 +25,7 @@ public partial class App : Application
             services.AddSingleton<MainWindow>();
 
             services.AddTransient<ProductListViewModel>();
+            services.AddTransient<ProductListView>();
 
             services.AddTransient<ProductAddViewModel>();
 

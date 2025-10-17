@@ -14,7 +14,7 @@ public partial class ProductEditViewModel(IServiceProvider serviceProvider) : Ob
     private string _pageTitle = "EDIT PRODUCT";
 
     [ObservableProperty]
-    private Product _productToUpdate = null!;
+    private Product _productToUpdate = new();
 
     [ObservableProperty]
     private ResponseResult _updateProductStatus = null!;

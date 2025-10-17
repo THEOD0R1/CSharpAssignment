@@ -10,8 +10,12 @@ namespace Presentation.WpfApp.ViewModels;
 public partial class ProductListViewModel(IServiceProvider serviceProvider) : ObservableObject
 {
     private readonly IServiceProvider _serviceProvider = serviceProvider;
+    
     [ObservableProperty]
     private ObservableCollection<Product> _products = [];
+
+    [ObservableProperty]
+    private string _pageTitle = "VIEW PRODUCTS";
 
     [RelayCommand]
     private void GoToAddProduct()
@@ -29,6 +33,14 @@ public partial class ProductListViewModel(IServiceProvider serviceProvider) : Ob
 
         var mvn = _serviceProvider.GetRequiredService<MainViewModel>();
         mvn.CurrentViewModel = pevm;
+    }
+
+    [RelayCommand]
+    private async Task DeleteProduct(string id)
+    {
+        var ps = _serviceProvider.GetRequiredService<IProductService>();
+
+        await ps.DeleteProductAsync(id);
     }
 
     public async Task PopulateProductListAsync()
