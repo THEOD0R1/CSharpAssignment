@@ -39,19 +39,28 @@
                         </Grid.RowDefinitions>
                         
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
                         </Grid.ColumnDefinitions>
-                        
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="{Binding Name}" />
-                            <TextBlock Text="{Binding Id}" FontSize="10" />
-                            <TextBlock Text="{Binding Category.CategoryName}" />
-                            <TextBlock Text="{Binding Manufacture.ManufactureName}" />
-                     
+
+                        <StackPanel Margin="10 0" Grid.Column="0">
+                            <TextBlock FontWeight="Bold" Text="Name: " />
+                            <TextBlock Text="Id: " />
+                            <TextBlock FontWeight="Bold" Text="Price: " />
+                            <TextBlock Text="Category:" />
+                            <TextBlock FontWeight="Bold" Text="Manufacturer: " />
                         </StackPanel>
-                        
-                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock FontWeight="Bold" Text="{Binding Name}" />
+                            <TextBlock Text="{Binding Id}" />
+                            <TextBlock FontWeight="Bold" Text="{Binding Price}" />
+                            <TextBlock Text="{Binding Category.CategoryName}" />
+                            <TextBlock FontWeight="Bold" Text="{Binding Manufacture.ManufactureName}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
                             <Button Content="Edit" CommandParameter="{Binding .}" Command="{Binding DataContext.GoToEditProductCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                             <Button Content="Delete" CommandParameter="{Binding Id}" Command="{Binding DataContext.DeleteProductCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                         </StackPanel>
