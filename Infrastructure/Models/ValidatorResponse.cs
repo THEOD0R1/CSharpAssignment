@@ -1,4 +1,6 @@
-﻿public class ValidatorResponse
+﻿namespace Infrastructure.Models;
+
+public class ValidatorResponse
 {
     public bool IsSuccess { get; set; }
     public string? Message { get; set; }

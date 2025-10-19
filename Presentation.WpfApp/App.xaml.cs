@@ -27,7 +27,11 @@ public partial class App : Application
             services.AddTransient<ProductListViewModel>();
             services.AddTransient<ProductListView>();
 
+            services.AddTransient<ProductEditViewModel>();
+            services.AddTransient<ProductEditView>();
+
             services.AddTransient<ProductAddViewModel>();
+            services.AddTransient<ProductAddView>();
 
         })
         .Build();

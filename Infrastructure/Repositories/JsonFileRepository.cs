@@ -10,8 +10,6 @@ public interface IJsonFileRepository
 
     Task<ResponseResult> UpdateAsync<T>(Func<T, bool> predicate, T updatedItem, CancellationToken cancellationToken = default);
     Task<ResponseResult> DeleteAsync<T>(Func<T, bool> predicate, CancellationToken cancellationToken = default);
-
-
 }
 public class JsonFileRepository : IJsonFileRepository
 {

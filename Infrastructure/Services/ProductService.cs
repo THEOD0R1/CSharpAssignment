@@ -5,13 +5,11 @@ using Infrastructure.Repositories;
 
 namespace Infrastructure.Services;
 
-
 public class ProductService(IJsonFileRepository jsonFileRepository) : IProductService
 {
     private List<Product> _products = [];
     private readonly IJsonFileRepository _jsonFileRepository = jsonFileRepository;
     private CancellationTokenSource? _cts;
-    private bool _loaded = false;
 
     public void Cancel()
     {
@@ -40,23 +38,19 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
         _cts = new CancellationTokenSource();
     }
 
-    public async Task<ResponseResult<IReadOnlyList<Product>>> EnsureLoadedAsync()
+ 
+    public async Task<ResponseResult<IReadOnlyList<Product>>> GetProductsAsync() 
     {
-        if (_loaded)
-            return ResponseResult<IReadOnlyList<Product>>.Ok(_products);
-
         StartNewCancellation();
 
         try
         {
             var result = await _jsonFileRepository.ReadAsync<Product>(_cts!.Token);
 
-            if (result.Success)
-                _loaded = true;
-
             _products = result.Content!.ToList() ?? [];
 
             return result;
+
         }
         catch (Exception ex)
         {
@@ -66,13 +60,7 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
         {
             Cancel();
         }
-      
-    }
-    public async Task<ResponseResult<IReadOnlyList<Product>>> GetProductsAsync() 
-    {
-        await EnsureLoadedAsync();
 
-        return ResponseResult<IReadOnlyList<Product>>.Ok(_products);
     }
 
     public async Task<ResponseResult> SaveProductAsync(ProductRequest productRequest)
@@ -81,16 +69,21 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
 
         try
         {
+            if (string.IsNullOrWhiteSpace(productRequest?.Name))
+                return ResponseResult.Fail(400, "Product name is required.");
+
             int alreadyExists = _products.FindIndex((product) => product.Name.Trim().Equals(productRequest.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
 
             if (alreadyExists != -1)
                 return ResponseResult.Fail(409, "Product name already exists.");
-
+                
             var product = new Product
             {
                 Id = IdGenerators.Product(),
                 Name = productRequest.Name,
                 Price = productRequest.Price,
+                Category = productRequest.Category ?? new Category(),
+                Manufacture = productRequest.Manufacture ?? new Manufacture(),
             };
 
             _products.Add(product);
@@ -113,14 +106,22 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
 
         try
         {
-            int alreadyExists = _products.FindIndex((product) => product.Name.Trim().Equals(updatedProduct.Name.Trim(), StringComparison.CurrentCultureIgnoreCase));
+            if (string.IsNullOrWhiteSpace(updatedProduct?.Name))
+                return ResponseResult.Fail(400, "Product name is required.");
+
+            int alreadyExists = _products.FindIndex(product => string.Equals(product.Name?.Trim(), updatedProduct.Name?.Trim(), StringComparison.CurrentCultureIgnoreCase) && !object.Equals(product.Id, updatedProduct.Id)
+);
 
             if (alreadyExists != -1)
                 return ResponseResult.Fail(409, "Product name is already taken.");
 
             var response = await _jsonFileRepository.UpdateAsync<Product>((product) => product.Id == updatedProduct.Id, updatedProduct, _cts!.Token);
 
-           return response;
+            var refreshList = await _jsonFileRepository.ReadAsync<Product>(_cts!.Token);
+
+            _products = [.. refreshList.Content!];
+
+            return response;
         }
         catch (Exception ex)
         {
@@ -139,6 +140,10 @@ public class ProductService(IJsonFileRepository jsonFileRepository) : IProductSe
         try
         {
             var response = await _jsonFileRepository.DeleteAsync<Product>((product) => product.Id == productId, _cts!.Token);
+
+            var refreshList = await _jsonFileRepository.ReadAsync<Product>(_cts!.Token);
+
+            _products = [.. refreshList.Content!];
 
             return response;
         }

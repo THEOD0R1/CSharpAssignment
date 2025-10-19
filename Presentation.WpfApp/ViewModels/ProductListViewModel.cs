@@ -7,10 +7,16 @@ using System.Collections.ObjectModel;
 
 namespace Presentation.WpfApp.ViewModels;
 
-public partial class ProductListViewModel(IServiceProvider serviceProvider) : ObservableObject
+public partial class ProductListViewModel : ObservableObject
 {
-    private readonly IServiceProvider _serviceProvider = serviceProvider;
-    
+    private readonly IServiceProvider _serviceProvider;
+
+    public ProductListViewModel(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+        _ = PopulateProductListAsync();
+    }
+
     [ObservableProperty]
     private ObservableCollection<Product> _products = [];
 
@@ -29,7 +35,14 @@ public partial class ProductListViewModel(IServiceProvider serviceProvider) : Ob
     private void GoToEditProduct(Product product)
     {
         var pevm = _serviceProvider.GetRequiredService<ProductEditViewModel>();
-        pevm.ProductToUpdate = product;
+        pevm.ProductToUpdate = new Product
+        {
+            Id = product.Id,
+            Name = product.Name,
+            Price = product.Price,
+            Category = product.Category,
+            Manufacture = product.Manufacture,
+        };
 
         var mvn = _serviceProvider.GetRequiredService<MainViewModel>();
         mvn.CurrentViewModel = pevm;
@@ -41,6 +54,8 @@ public partial class ProductListViewModel(IServiceProvider serviceProvider) : Ob
         var ps = _serviceProvider.GetRequiredService<IProductService>();
 
         await ps.DeleteProductAsync(id);
+
+        await PopulateProductListAsync();
     }
 
     public async Task PopulateProductListAsync()
@@ -49,6 +64,6 @@ public partial class ProductListViewModel(IServiceProvider serviceProvider) : Ob
 
         var products = await ps.GetProductsAsync();
 
-        Products = [.. products.Content!];
+        Products = new ObservableCollection<Product>(products.Content!);
     }
 }

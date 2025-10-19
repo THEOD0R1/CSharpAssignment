@@ -13,31 +13,26 @@ namespace Infrastructure.Tests.Services;
 * 
 * TEST OVERVIEW:
 * ------------------------------------------------------
-* 1. EnsureLoadedAsync_ReturnsCachedProducts_WhenAlreadyLoaded
-*     Verifies that if products are already loaded, it returns them directly without reloading.
 *
-* 2. EnsureLoadedAsync_LoadsProducts_FromRepository
-*     Ensures that the service correctly loads product data from the repository.
-*
-* 3. GetProductsAsync_ReturnsLoadedProducts
+* 1. GetProductsAsync_ReturnsLoadedProducts
 *     Verifies that GetProductsAsync returns products after EnsureLoadedAsync is called.
 *
-* 4. SaveProductAsync_NewProduct_Succeeds
+* 2. SaveProductAsync_NewProduct_Succeeds
 *     Confirms that saving a unique product adds it successfully and writes it to the repository.
 *
-* 5. SaveProductAsync_DuplicateName_ReturnsConflict
+* 3. SaveProductAsync_DuplicateName_ReturnsConflict
 *     Ensures that saving a product with an existing name returns a 409 conflict.
 *
-* 6. UpdateProductAsync_NewName_Succeeds
+* 4. UpdateProductAsync_NewName_Succeeds
 *     Verifies that updating a product with a unique name succeeds.
 *
-* 7. UpdateProductAsync_DuplicateName_ReturnsConflict
+* 5. UpdateProductAsync_DuplicateName_ReturnsConflict
 *     Ensures that updating a product to a name that already exists returns a conflict.
 *
-* 8. DeleteProductAsync_Succeeds
+* 6. DeleteProductAsync_Succeeds
 *     Confirms that deleting a product calls the repository and succeeds.
 *
-* 9. Cancel_DisposesTokenSourceSafely
+* 7. Cancel_DisposesTokenSourceSafely
 *     Verifies that calling Cancel cleans up and disposes the CancellationTokenSource.
 *     
 * ############################################################
@@ -53,43 +48,7 @@ public class ProductService_Tests
         _service = new ProductService(_repoMock.Object);
     }
 
-    [Fact]
-    public async Task EnsureLoadedAsync_ReturnsCachedProducts_WhenAlreadyLoaded()
-    {
-        // Arrange
-        await _service.EnsureLoadedAsync();
-        var products = new List<Product> { new() { Id = "1", Name = "Cached", Price = 1 } };
-        typeof(ProductService)
-            .GetField("_products", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-            .SetValue(_service, products);
-        typeof(ProductService)
-            .GetField("_loaded", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-            .SetValue(_service, true);
-
-        // Act
-        var result = await _service.EnsureLoadedAsync();
-
-        // Assert
-        Assert.True(result.Success);
-        Assert.Equal("Cached", result.Content![0].Name);
-    }
-
-    [Fact]
-    public async Task EnsureLoadedAsync_LoadsProducts_FromRepository()
-    {
-        // Arrange
-        var products = new List<Product> { new() { Id = "1", Name = "Loaded", Price = 10 } };
-        _repoMock.Setup(r => r.ReadAsync<Product>(It.IsAny<CancellationToken>()))
-                 .ReturnsAsync(ResponseResult<IReadOnlyList<Product>>.Ok(products));
-
-        // Act
-        var result = await _service.EnsureLoadedAsync();
-
-        // Assert
-        Assert.True(result.Success);
-        Assert.Single(result.Content!);
-        Assert.Equal("Loaded", result.Content![0].Name);
-    }
+    
 
     [Fact]
     public async Task GetProductsAsync_ReturnsLoadedProducts()
@@ -120,7 +79,7 @@ public class ProductService_Tests
         var request = new ProductRequest { Name = "New", Price = 99 };
 
         // Act
-        await _service.EnsureLoadedAsync();
+        await _service.GetProductsAsync();
         var result = await _service.SaveProductAsync(request);
 
         // Assert
@@ -135,7 +94,7 @@ public class ProductService_Tests
         var products = new List<Product> { new() { Id = "1", Name = "Duplicate", Price = 10 } };
         _repoMock.Setup(r => r.ReadAsync<Product>(It.IsAny<CancellationToken>()))
                  .ReturnsAsync(ResponseResult<IReadOnlyList<Product>>.Ok(products));
-        await _service.EnsureLoadedAsync();
+        await _service.GetProductsAsync();
 
         var request = new ProductRequest { Name = "Duplicate", Price = 50 };
 
@@ -150,20 +109,26 @@ public class ProductService_Tests
     [Fact]
     public async Task UpdateProductAsync_NewName_Succeeds()
     {
-        // Arrange
-        _repoMock.Setup(r => r.UpdateAsync<Product>(It.IsAny<Func<Product, bool>>(), It.IsAny<Product>(), It.IsAny<CancellationToken>()))
-                 .ReturnsAsync(ResponseResult.Ok());
-        typeof(ProductService)
-            .GetField("_products", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
-            .SetValue(_service, new List<Product>());
+    _repoMock.Setup(r => r.UpdateAsync<Product>(
+                        It.IsAny<Func<Product, bool>>(),
+                        It.IsAny<Product>(),
+                        It.IsAny<CancellationToken>()))
+             .ReturnsAsync(ResponseResult.Ok());
 
-        var updated = new Product { Id = "1", Name = "Updated", Price = 5 };
+    _repoMock.Setup(r => r.ReadAsync<Product>(It.IsAny<CancellationToken>()))
+             .ReturnsAsync(ResponseResult<IReadOnlyList<Product>>.Ok([]));
 
-        // Act
-        var result = await _service.UpdateProductAsync(updated);
+    typeof(ProductService)
+        .GetField("_products", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+        .SetValue(_service, new List<Product>());
 
-        // Assert
-        Assert.True(result.Success);
+    var updated = new Product { Id = "1", Name = "Updated", Price = 5 };
+
+    // Act
+    var result = await _service.UpdateProductAsync(updated);
+
+    // Assert
+    Assert.True(result.Success);
     }
 
     [Fact]
@@ -191,6 +156,8 @@ public class ProductService_Tests
         // Arrange
         _repoMock.Setup(r => r.DeleteAsync<Product>(It.IsAny<Func<Product, bool>>(), It.IsAny<CancellationToken>()))
                  .ReturnsAsync(ResponseResult.Ok());
+        _repoMock.Setup(r => r.ReadAsync<Product>(It.IsAny<CancellationToken>()))
+                 .ReturnsAsync(ResponseResult<IReadOnlyList<Product>>.Ok([]));
 
         // Act
         var result = await _service.DeleteProductAsync("1");

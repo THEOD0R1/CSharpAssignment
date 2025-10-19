@@ -14,18 +14,20 @@ public partial class ProductEditViewModel(IServiceProvider serviceProvider) : Ob
     private string _pageTitle = "EDIT PRODUCT";
 
     [ObservableProperty]
-    private Product _productToUpdate = new();
+    private Product _productToUpdate = new()
+    {
+        Category = new Category(),
+        Manufacture = new Manufacture()
+    };
 
-    [ObservableProperty]
-    private ResponseResult _updateProductStatus = null!;
 
     [RelayCommand]
     private async Task UpdateProduct()
     {
         var ps = _serviceProvider.GetRequiredService<IProductService>();
-        UpdateProductStatus = await ps.UpdateProductAsync(ProductToUpdate);
+        var response = await ps.UpdateProductAsync(ProductToUpdate);
 
-        if (!UpdateProductStatus.Success)
+        if (!response.Success)
             return;
 
         GoToProductList();
@@ -44,4 +46,5 @@ public partial class ProductEditViewModel(IServiceProvider serviceProvider) : Ob
 
         mvn.CurrentViewModel = plvm;
     }
+
 }

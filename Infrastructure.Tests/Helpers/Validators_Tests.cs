@@ -1,4 +1,5 @@
 using Infrastructure.Helpers;
+using Infrastructure.Models;
 
 namespace Infrastructure.Tests.Helpers;
 

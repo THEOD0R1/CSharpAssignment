@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="Presentation.WpfApp.Views.ProductAddView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Presentation.WpfApp.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             
+             xmlns:viewmodels="clr-namespace:Presentation.WpfApp.ViewModels"
+             d:DataContext="{d:DesignInstance Type=viewmodels:ProductAddViewModel}"
+             
+             Background="white"
+             >
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Height="20" Grid.Row="0" Text="{Binding PageTitle}" Margin="0 0 0 10" />
+
+        <StackPanel Grid.Row="1">
+            <Label Content="Name" />
+            <TextBox Text="{Binding NewProduct.Name}" Margin="0 0 0 10" />
+            <Label Content="Price" />
+            <TextBox Text="{Binding NewProduct.Price}" Margin="0 0 0 10" />
+            <Label Content="Category" />
+            <TextBox Text="{Binding NewProduct.Category.CategoryName}" Margin="0 0 0 10" />
+            <Label Content="Maunfacture" />
+            <TextBox Text="{Binding NewProduct.Manufacture.ManufactureName}" Margin="0 0 0 10" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2">
+            <Button Content="Save" Margin="0 0 0 5" Command="{Binding SaveNewProductCommand}"/>
+            <Button Content="Cancel" Margin="0 0 0 5" Command="{Binding CancelNewProductCommand}"/>
+        </StackPanel>
+
+    </Grid>
+</UserControl>

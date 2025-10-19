@@ -14,7 +14,11 @@ public partial class ProductAddViewModel(IServiceProvider serviceProvider) : Obs
     private string _pageTitle = "ADD PRODUCT";
 
     [ObservableProperty]
-    private ProductRequest _newProduct = new();
+    private ProductRequest _newProduct = new()
+    {
+        Manufacture = new(),
+        Category = new()
+    };
 
     [RelayCommand]
     private async Task SaveNewProduct()

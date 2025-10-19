@@ -13,7 +13,7 @@
              
              Background="white"
              >
-    <Grid>
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
@@ -48,6 +48,7 @@
                             <TextBlock Text="{Binding Id}" FontSize="10" />
                             <TextBlock Text="{Binding Category.CategoryName}" />
                             <TextBlock Text="{Binding Manufacture.ManufactureName}" />
+                     
                         </StackPanel>
                         
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
